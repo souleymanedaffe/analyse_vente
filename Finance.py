@@ -13,7 +13,7 @@ import plotly.express as px
 # Chargement et nettoyage des données
 @st.cache_data
 def load_data():
-    df = pd.read_excel('Online Retail.xlsx')
+    df = pd.read_excel('Retail.xlsx')
     df = df.dropna(subset=['CustomerID'])
     df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
     df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
