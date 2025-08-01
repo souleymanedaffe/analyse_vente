@@ -14,7 +14,9 @@ import plotly.express as px
 @st.cache_data
 def load_data(nrows=None):
     try:
-        df = pd.read_csv("Retail.csv", nrows=1000)
+        df = load_data(nrows=1000)
+        st.write("✅ Données chargées")
+
 
         df = df.dropna(subset=['CustomerID'])
         df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'], errors='coerce')
