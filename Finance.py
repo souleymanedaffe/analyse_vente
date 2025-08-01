@@ -14,7 +14,8 @@ import plotly.express as px
 @st.cache_data
 def load_data(nrows=None):
     try:
-        df = pd.read_csv('Retail.csv', nrows=nrows)
+        df = pd.read_csv("Retail.csv", nrows=5000)
+
         df = df.dropna(subset=['CustomerID'])
         df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'], errors='coerce')
         df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
