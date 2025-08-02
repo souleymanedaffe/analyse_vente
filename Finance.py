@@ -1,19 +1,23 @@
 import pandas as pd
 import numpy as np
 import streamlit as st
-
+import zipfile
+import requests
+import folium
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.preprocessing import LabelEncoder
-import folium
 from streamlit_folium import st_folium
-import requests
 import plotly.express as px
 
-# Chargement et nettoyage des données
+# Chargement et nettoyage des données depuis un fichier ZIP
 @st.cache_data
 def load_data():
-    df = pd.read_excel('Retail.xlsx')
+    zip_path = 'vente_compressed.zip'  # Le fichier ZIP doit être dans le dossier du projet
+    with zipfile.ZipFile(zip_path) as z:
+        with z.open('vente.csv') as f:
+            df = pd.read_csv(f, encoding='utf-8')
+
     df = df.dropna(subset=['CustomerID'])
     df['InvoiceDate'] = pd.to_datetime(df['InvoiceDate'])
     df['TotalPrice'] = df['Quantity'] * df['UnitPrice']
@@ -111,7 +115,6 @@ fig_pie = px.pie(
 )
 st.plotly_chart(fig_pie, use_container_width=True)
 
-
 # 6. Montant dépensé par client
 st.subheader('Top clients par montant')
 client_amount = (
@@ -141,9 +144,7 @@ st.write('Pays :', cdf['Country'].mode()[0])
 periods = sorted(cdf['MonthPeriod'].unique(), reverse=True)
 timestamps = [p.to_timestamp() for p in periods]
 labels = [ts.strftime('%B %Y') for ts in timestamps]
-# Mapping étiquette → période
 label_to_period = dict(zip(labels, periods))
-# Multiselect pour permettre plusieurs mois
 selected_labels = st.multiselect('Mois (choisissez un ou plusieurs)', labels, default=[labels[0]])
 if selected_labels:
     selected_periods = [label_to_period[l] for l in selected_labels]
@@ -162,15 +163,12 @@ if selected_labels:
 else:
     st.write("Aucun mois sélectionné.")
 
-
-# Carte choroplèthe avec tooltips
-
+# 8. Carte choroplèthe avec tooltips
 clients_country = (
     df.groupby('Country')['CustomerID']
       .nunique()
       .reset_index(name='NbClients')
 )
-
 
 st.subheader('Carte des clients par pays')
 url = 'https://raw.githubusercontent.com/python-visualization/folium/master/examples/data/world-countries.json'
